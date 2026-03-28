@@ -5,13 +5,22 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with('category')->latest()->paginate(12);
+        $products = Product::with('category')
+            ->withSum(['stockMovements as stock_in_total' => function ($query) {
+                $query->where('type', 'IN');
+            }], 'quantity')
+            ->withSum(['stockMovements as stock_out_total' => function ($query) {
+                $query->where('type', 'OUT');
+            }], 'quantity')
+            ->latest()
+            ->paginate(12);
 
         return view('products.index', compact('products'));
     }
@@ -67,7 +76,7 @@ class ProductController extends Controller
     {
         $product->update([
             'is_active' => ! $product->is_active,
-            'updated_by' => auth()->id(),
+            'updated_by' => Auth::id(),
         ]);
 
         return redirect()->route('products.index')

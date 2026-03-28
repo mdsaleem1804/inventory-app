@@ -1,9 +1,14 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SaleController;
+use App\Http\Controllers\StockMovementController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard');
@@ -11,11 +16,28 @@ Route::redirect('/', '/dashboard');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('categories', CategoryController::class)->except(['show']);
+    Route::resource('customers', CustomerController::class);
+    Route::resource('suppliers', SupplierController::class);
+    Route::resource('sales', SaleController::class)->except(['edit', 'update']);
+    Route::resource('purchases', PurchaseController::class)->except(['edit', 'update']);
     Route::resource('products', ProductController::class)->except(['show']);
     Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])
         ->name('products.toggle-status');
+    Route::get('products/{product}/stock-movements', [StockMovementController::class, 'index'])
+        ->name('products.stock-movements.index');
+    Route::get('products/{product}/stock-movements/create', [StockMovementController::class, 'create'])
+        ->name('products.stock-movements.create');
+    Route::post('products/{product}/stock-movements', [StockMovementController::class, 'store'])
+        ->name('products.stock-movements.store');
 
-    Route::view('/stock', 'stock.index')->name('stock.index');
+    Route::get('products/{product}/stock-in', [StockMovementController::class, 'create'])
+        ->defaults('type', 'IN')
+        ->name('products.stock-in.create');
+    Route::get('products/{product}/stock-out', [StockMovementController::class, 'create'])
+        ->defaults('type', 'OUT')
+        ->name('products.stock-out.create');
+
+    Route::get('/stock', [StockMovementController::class, 'stockIndex'])->name('stock.index');
     Route::view('/reports', 'reports.index')->name('reports.index');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

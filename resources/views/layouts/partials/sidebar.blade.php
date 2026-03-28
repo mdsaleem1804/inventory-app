@@ -15,6 +15,10 @@
         <a href="{{ route('dashboard') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('dashboard') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Dashboard</a>
         <a href="{{ route('products.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('products.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Products</a>
         <a href="{{ route('categories.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('categories.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Categories</a>
+        <a href="{{ route('customers.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('customers.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Customers</a>
+        <a href="{{ route('suppliers.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('suppliers.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Suppliers</a>
+        <a href="{{ route('sales.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('sales.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Sales</a>
+        <a href="{{ route('purchases.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('purchases.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Purchases</a>
         <a href="{{ route('stock.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('stock.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Stock</a>
         <a href="{{ route('reports.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('reports.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Reports</a>
 

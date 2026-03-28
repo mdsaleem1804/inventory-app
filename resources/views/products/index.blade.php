@@ -17,6 +17,7 @@
                         <th class="px-3 py-2 font-medium">Name</th>
                         <th class="px-3 py-2 font-medium">SKU</th>
                         <th class="px-3 py-2 font-medium">Category</th>
+                        <th class="px-3 py-2 font-medium">Current Stock</th>
                         <th class="px-3 py-2 font-medium">Price</th>
                         <th class="px-3 py-2 font-medium">Status</th>
                         <th class="px-3 py-2 font-medium">Actions</th>
@@ -28,6 +29,7 @@
                             <td class="px-3 py-3 font-medium text-slate-900">{{ $product->name }}</td>
                             <td class="px-3 py-3 text-slate-700">{{ $product->sku }}</td>
                             <td class="px-3 py-3 text-slate-700">{{ $product->category?->name }}</td>
+                            <td class="px-3 py-3 font-semibold text-slate-900">{{ $product->current_stock }}</td>
                             <td class="px-3 py-3 text-slate-700">${{ number_format((float) $product->price, 2) }}</td>
                             <td class="px-3 py-3">
                                 <span class="rounded-full px-2 py-1 text-xs font-medium {{ $product->is_active ? 'bg-green-100 text-green-700' : 'bg-slate-200 text-slate-700' }}">
@@ -36,6 +38,9 @@
                             </td>
                             <td class="px-3 py-3">
                                 <div class="flex flex-wrap gap-2">
+                                    <a href="{{ route('products.stock-in.create', ['product' => $product, 'type' => 'IN']) }}" class="rounded-md border border-green-300 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-50">Add Stock</a>
+                                    <a href="{{ route('products.stock-out.create', ['product' => $product, 'type' => 'OUT']) }}" class="rounded-md border border-rose-300 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50">Remove Stock</a>
+                                    <a href="{{ route('products.stock-movements.index', $product) }}" class="rounded-md border border-indigo-300 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-50">History</a>
                                     <a href="{{ route('products.edit', $product) }}" class="rounded-md border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100">Edit</a>
 
                                     <form method="POST" action="{{ route('products.toggle-status', $product) }}">
@@ -56,7 +61,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-3 py-8 text-center text-sm text-slate-500">No products found.</td>
+                            <td colspan="7" class="px-3 py-8 text-center text-sm text-slate-500">No products found.</td>
                         </tr>
                     @endforelse
                 </tbody>
