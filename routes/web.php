@@ -17,6 +17,7 @@ Route::redirect('/', '/dashboard');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/stats', [DashboardController::class, 'stats'])->name('dashboard.stats');
 
     Route::middleware('role:admin,manager,staff')->group(function () {
         Route::resource('sales', SaleController::class)->except(['edit', 'update', 'destroy']);
