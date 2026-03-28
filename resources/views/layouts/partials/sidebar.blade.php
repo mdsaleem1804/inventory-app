@@ -1,0 +1,26 @@
+<aside
+    class="fixed inset-y-0 left-0 z-40 w-64 transform border-r border-slate-200 bg-white transition-transform duration-200 ease-in-out lg:static lg:translate-x-0"
+    :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
+>
+    <div class="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+        <a href="{{ route('dashboard') }}" class="text-lg font-semibold text-slate-900">Inventory App</a>
+        <button type="button" class="rounded-md p-2 text-slate-500 lg:hidden" @click="sidebarOpen = false" aria-label="Close sidebar">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+
+    <nav class="space-y-1 p-3 text-sm">
+        <a href="{{ route('dashboard') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('dashboard') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Dashboard</a>
+        <a href="{{ route('products.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('products.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Products</a>
+        <a href="{{ route('categories.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('categories.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Categories</a>
+        <a href="{{ route('stock.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('stock.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Stock</a>
+        <a href="{{ route('reports.index') }}" class="block rounded-lg px-3 py-2 {{ request()->routeIs('reports.*') ? 'bg-slate-900 text-white' : 'text-slate-700 hover:bg-slate-100' }}">Reports</a>
+
+        <form method="POST" action="{{ route('logout') }}" class="pt-2">
+            @csrf
+            <button type="submit" class="w-full rounded-lg px-3 py-2 text-left text-slate-700 hover:bg-slate-100">Logout</button>
+        </form>
+    </nav>
+</aside>
