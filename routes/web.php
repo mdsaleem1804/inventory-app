@@ -6,6 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\StockMovementController;
 use App\Http\Controllers\SupplierController;
@@ -38,7 +39,10 @@ Route::middleware('auth')->group(function () {
         ->name('products.stock-out.create');
 
     Route::get('/stock', [StockMovementController::class, 'stockIndex'])->name('stock.index');
-    Route::view('/reports', 'reports.index')->name('reports.index');
+    Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
+    Route::get('/reports/stock', [ReportsController::class, 'stock'])->name('reports.stock');
+    Route::get('/reports/low-stock', [ReportsController::class, 'lowStock'])->name('reports.low-stock');
+    Route::get('/reports/profit', [ReportsController::class, 'profit'])->name('reports.profit');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
