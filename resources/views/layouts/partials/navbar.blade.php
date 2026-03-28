@@ -18,6 +18,7 @@
 
         <div class="text-right text-sm">
             <p class="font-medium text-slate-900">{{ auth()->user()->name }}</p>
+            <p class="text-xs uppercase tracking-wide text-slate-500">{{ auth()->user()->role }}</p>
             <p class="text-slate-500">{{ auth()->user()->email }}</p>
         </div>
     </div>

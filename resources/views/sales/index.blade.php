@@ -31,11 +31,13 @@
                             <td class="px-3 py-3">
                                 <div class="flex flex-wrap gap-2">
                                     <a href="{{ route('sales.show', $sale) }}" class="rounded-md border border-indigo-300 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-50">View</a>
-                                    <form method="POST" action="{{ route('sales.destroy', $sale) }}" onsubmit="return confirm('Delete this sale invoice?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50">Delete</button>
-                                    </form>
+                                    @if(auth()->user()->isAdmin() || auth()->user()->isManager())
+                                        <form method="POST" action="{{ route('sales.destroy', $sale) }}" onsubmit="return confirm('Delete this sale invoice?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="rounded-md border border-red-300 px-3 py-1.5 text-xs font-medium text-red-700 hover:bg-red-50">Delete</button>
+                                        </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

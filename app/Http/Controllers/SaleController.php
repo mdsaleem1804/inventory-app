@@ -81,6 +81,13 @@ class SaleController extends Controller
 
             foreach ($validated['items'] as $item) {
                 $product = Product::query()->whereKey($item['product_id'])->lockForUpdate()->firstOrFail();
+
+                if (! $product->is_active) {
+                    throw ValidationException::withMessages([
+                        'items' => ["{$product->name} is inactive and cannot be sold."],
+                    ]);
+                }
+
                 $allocations = collect();
 
                 $lineTotal = (float) $item['quantity'] * (float) $item['price'];
@@ -177,6 +184,7 @@ class SaleController extends Controller
     private function productsWithStock()
     {
         return Product::query()
+            ->where('is_active', true)
             ->with(['batches' => function ($query) {
                 $query->where('remaining_quantity', '>', 0)
                     ->orderByRaw('CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END ASC')
