@@ -5,10 +5,12 @@ namespace App\Providers;
 use App\Models\Category;
 use App\Models\Customer;
 use App\Models\Product;
+use App\Models\ProductBatch;
 use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Sale;
 use App\Models\SaleItem;
+use App\Models\SaleItemBatch;
 use App\Models\StockMovement;
 use App\Models\Supplier;
 use App\Observers\AuditableObserver;
@@ -38,7 +40,9 @@ class AppServiceProvider extends ServiceProvider
         Supplier::observe($observer);
         Sale::observe($observer);
         SaleItem::observe($observer);
+        SaleItemBatch::observe($observer);
         Purchase::observe($observer);
         PurchaseItem::observe($observer);
+        ProductBatch::observe($observer);
     }
 }

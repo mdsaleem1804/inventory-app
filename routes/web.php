@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('sales', SaleController::class)->except(['edit', 'update']);
     Route::resource('purchases', PurchaseController::class)->except(['edit', 'update']);
-    Route::resource('products', ProductController::class)->except(['show']);
+    Route::resource('products', ProductController::class);
     Route::patch('products/{product}/toggle-status', [ProductController::class, 'toggleStatus'])
         ->name('products.toggle-status');
     Route::get('products/{product}/stock-movements', [StockMovementController::class, 'index'])
@@ -43,6 +43,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/reports/stock', [ReportsController::class, 'stock'])->name('reports.stock');
     Route::get('/reports/low-stock', [ReportsController::class, 'lowStock'])->name('reports.low-stock');
     Route::get('/reports/profit', [ReportsController::class, 'profit'])->name('reports.profit');
+    Route::get('/reports/batches', [ReportsController::class, 'batches'])->name('reports.batches');
+    Route::get('/reports/expiry', [ReportsController::class, 'expiry'])->name('reports.expiry');
+    Route::get('/reports/mrp', [ReportsController::class, 'mrp'])->name('reports.mrp');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

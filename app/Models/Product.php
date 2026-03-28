@@ -23,6 +23,9 @@ class Product extends Model
         'minimum_stock',
         'description',
         'is_active',
+        'is_batch_enabled',
+        'has_expiry',
+        'has_mrp',
         'created_by',
         'updated_by',
     ];
@@ -33,6 +36,9 @@ class Product extends Model
             'price' => 'decimal:2',
             'cost_price' => 'decimal:2',
             'is_active' => 'boolean',
+            'is_batch_enabled' => 'boolean',
+            'has_expiry' => 'boolean',
+            'has_mrp' => 'boolean',
         ];
     }
 
@@ -54,6 +60,11 @@ class Product extends Model
     public function stockMovements(): HasMany
     {
         return $this->hasMany(StockMovement::class);
+    }
+
+    public function batches(): HasMany
+    {
+        return $this->hasMany(ProductBatch::class);
     }
 
     public function saleItems(): HasMany

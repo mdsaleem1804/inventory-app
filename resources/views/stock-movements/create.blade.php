@@ -5,6 +5,12 @@
         <div class="mb-4">
             <h2 class="text-lg font-semibold text-slate-900">{{ $product->name }} <span class="text-slate-500">({{ $product->sku }})</span></h2>
             <p class="mt-1 text-sm text-slate-600">Current Stock: <span class="font-semibold">{{ $product->current_stock }}</span></p>
+            <p class="mt-1 text-sm text-slate-500">
+                Mode: {{ $product->is_batch_enabled ? 'Batch-enabled' : 'Standard stock' }}
+                @if($product->is_batch_enabled)
+                    | Expiry: {{ $product->has_expiry ? 'Enabled' : 'Disabled' }} | MRP: {{ $product->has_mrp ? 'Enabled' : 'Disabled' }}
+                @endif
+            </p>
         </div>
 
         <form method="POST" action="{{ route('products.stock-movements.store', $product) }}" class="grid gap-4 md:grid-cols-2">
@@ -23,6 +29,24 @@
                 <label for="quantity" class="mb-1 block text-sm font-medium text-slate-700">Quantity</label>
                 <input id="quantity" name="quantity" type="number" min="1" value="{{ old('quantity') }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none" required>
                 @error('quantity')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <label for="cost_price" class="mb-1 block text-sm font-medium text-slate-700">Cost Price (for IN)</label>
+                <input id="cost_price" name="cost_price" type="number" min="0" step="0.01" value="{{ old('cost_price', number_format((float) $product->cost_price, 2, '.', '')) }}" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+                @error('cost_price')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <label for="mrp" class="mb-1 block text-sm font-medium text-slate-700">MRP (for IN)</label>
+                <input id="mrp" name="mrp" type="number" min="0" step="0.01" value="{{ old('mrp') }}" @disabled(! $product->is_batch_enabled || ! $product->has_mrp) class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+                @error('mrp')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
+
+            <div>
+                <label for="expiry_date" class="mb-1 block text-sm font-medium text-slate-700">Expiry Date (optional)</label>
+                <input id="expiry_date" name="expiry_date" type="date" value="{{ old('expiry_date') }}" @disabled(! $product->is_batch_enabled || ! $product->has_expiry) class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none">
+                @error('expiry_date')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
             </div>
 
             <div>

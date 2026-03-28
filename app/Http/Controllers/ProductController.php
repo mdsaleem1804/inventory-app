@@ -36,6 +36,9 @@ class ProductController extends Controller
     {
         $validated = $request->validate($this->rules());
         $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_batch_enabled'] = $request->boolean('is_batch_enabled');
+        $validated['has_expiry'] = $validated['is_batch_enabled'] && $request->boolean('has_expiry');
+        $validated['has_mrp'] = $validated['is_batch_enabled'] && $request->boolean('has_mrp');
         $validated['created_by'] = $request->user()->id;
         $validated['updated_by'] = $request->user()->id;
 
@@ -52,10 +55,27 @@ class ProductController extends Controller
         return view('products.edit', compact('product', 'categories'));
     }
 
+    public function show(Product $product)
+    {
+        $product->load([
+            'category',
+            'batches' => function ($query) {
+                $query->orderByRaw('CASE WHEN expiry_date IS NULL THEN 1 ELSE 0 END ASC')
+                    ->orderBy('expiry_date')
+                    ->orderBy('created_at');
+            },
+        ]);
+
+        return view('products.show', compact('product'));
+    }
+
     public function update(Request $request, Product $product)
     {
         $validated = $request->validate($this->rules($product));
         $validated['is_active'] = $request->boolean('is_active');
+        $validated['is_batch_enabled'] = $request->boolean('is_batch_enabled');
+        $validated['has_expiry'] = $validated['is_batch_enabled'] && $request->boolean('has_expiry');
+        $validated['has_mrp'] = $validated['is_batch_enabled'] && $request->boolean('has_mrp');
         $validated['updated_by'] = $request->user()->id;
 
         $product->update($validated);
@@ -103,6 +123,9 @@ class ProductController extends Controller
             'minimum_stock' => ['required', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],
+            'is_batch_enabled' => ['nullable', 'boolean'],
+            'has_expiry' => ['nullable', 'boolean'],
+            'has_mrp' => ['nullable', 'boolean'],
         ];
     }
 }

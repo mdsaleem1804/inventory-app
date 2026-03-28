@@ -76,10 +76,51 @@
                 </label>
             </div>
 
+            <div class="md:col-span-2 rounded-lg border border-slate-200 p-4">
+                <p class="mb-2 text-sm font-medium text-slate-800">Advanced Inventory Options</p>
+                <div class="grid gap-3 sm:grid-cols-3">
+                    <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+                        <input id="is_batch_enabled" type="checkbox" name="is_batch_enabled" value="1" class="rounded border-slate-300" @checked(old('is_batch_enabled', $product->is_batch_enabled))>
+                        Enable Batch
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+                        <input id="has_expiry" type="checkbox" name="has_expiry" value="1" class="rounded border-slate-300" @checked(old('has_expiry', $product->has_expiry))>
+                        Enable Expiry
+                    </label>
+                    <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+                        <input id="has_mrp" type="checkbox" name="has_mrp" value="1" class="rounded border-slate-300" @checked(old('has_mrp', $product->has_mrp))>
+                        Enable MRP
+                    </label>
+                </div>
+                @error('is_batch_enabled')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @error('has_expiry')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+                @error('has_mrp')<p class="mt-1 text-sm text-red-600">{{ $message }}</p>@enderror
+            </div>
+
             <div class="md:col-span-2 flex items-center gap-2">
                 <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800">Update Product</button>
                 <a href="{{ route('products.index') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100">Cancel</a>
             </div>
         </form>
     </div>
+
+    <script>
+        const batchToggle = document.getElementById('is_batch_enabled');
+        const expiryToggle = document.getElementById('has_expiry');
+        const mrpToggle = document.getElementById('has_mrp');
+
+        function syncBatchOptionDependencies() {
+            const enabled = batchToggle.checked;
+            expiryToggle.disabled = !enabled;
+            mrpToggle.disabled = !enabled;
+
+            if (!enabled) {
+                expiryToggle.checked = false;
+                mrpToggle.checked = false;
+            }
+        }
+
+        batchToggle.addEventListener('change', syncBatchOptionDependencies);
+        syncBatchOptionDependencies();
+    </script>
 </x-app-layout>

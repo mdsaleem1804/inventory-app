@@ -9,18 +9,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class SaleItem extends Model
+class ProductBatch extends Model
 {
     use HasFactory, SoftDeletes, TracksAuditFields;
 
     protected $fillable = [
-        'sale_id',
         'product_id',
+        'batch_number',
         'quantity',
-        'price',
+        'remaining_quantity',
         'cost_price',
-        'total',
-        'cost_total',
+        'mrp',
+        'expiry_date',
         'created_by',
         'updated_by',
         'deleted_by',
@@ -29,16 +29,10 @@ class SaleItem extends Model
     protected function casts(): array
     {
         return [
-            'price' => 'decimal:2',
             'cost_price' => 'decimal:2',
-            'total' => 'decimal:2',
-            'cost_total' => 'decimal:2',
+            'mrp' => 'decimal:2',
+            'expiry_date' => 'date',
         ];
-    }
-
-    public function sale(): BelongsTo
-    {
-        return $this->belongsTo(Sale::class);
     }
 
     public function product(): BelongsTo
@@ -46,7 +40,12 @@ class SaleItem extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function batchAllocations(): HasMany
+    public function stockMovements(): HasMany
+    {
+        return $this->hasMany(StockMovement::class);
+    }
+
+    public function saleItemBatches(): HasMany
     {
         return $this->hasMany(SaleItemBatch::class);
     }

@@ -7,12 +7,18 @@ use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\StockMovement;
 use App\Models\Supplier;
+use App\Services\BatchStockService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class PurchaseController extends Controller
 {
+    public function __construct(private readonly BatchStockService $batchStockService)
+    {
+    }
+
     public function index()
     {
         $purchases = Purchase::with('supplier')->latest()->paginate(12);
@@ -29,6 +35,9 @@ class PurchaseController extends Controller
                 'id' => $product->id,
                 'name' => $product->name,
                 'cost_price' => $product->cost_price,
+                'is_batch_enabled' => (bool) $product->is_batch_enabled,
+                'has_expiry' => (bool) $product->has_expiry,
+                'has_mrp' => (bool) $product->has_mrp,
             ];
         })->values();
 
@@ -44,6 +53,8 @@ class PurchaseController extends Controller
             'items.*.product_id' => ['required', 'distinct', 'exists:products,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
             'items.*.cost_price' => ['required', 'numeric', 'min:0'],
+            'items.*.expiry_date' => ['nullable', 'date'],
+            'items.*.mrp' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         DB::transaction(function () use ($validated, $request): void {
@@ -72,13 +83,41 @@ class PurchaseController extends Controller
                     'updated_by' => $request->user()->id,
                 ]);
 
+                if ($product->is_batch_enabled) {
+                    if ($product->has_expiry && empty($item['expiry_date'])) {
+                        throw ValidationException::withMessages([
+                            'items' => ["Expiry date is required for {$product->name}."],
+                        ]);
+                    }
+
+                    if ($product->has_mrp && ! isset($item['mrp'])) {
+                        throw ValidationException::withMessages([
+                            'items' => ["MRP is required for {$product->name}."],
+                        ]);
+                    }
+
+                    $this->batchStockService->createInboundBatch(
+                        product: $product,
+                        quantity: (int) $item['quantity'],
+                        costPrice: (float) $item['cost_price'],
+                        userId: $request->user()->id,
+                        reference: 'purchase:' . $purchase->invoice_number,
+                        notes: 'Purchase invoice movement',
+                        expiryDate: $product->has_expiry ? ($item['expiry_date'] ?? null) : null,
+                        mrp: $product->has_mrp ? (float) ($item['mrp'] ?? 0) : null,
+                    );
+
+                    continue;
+                }
+
                 StockMovement::create([
                     'product_id' => $product->id,
                     'type' => 'IN',
-                    'quantity' => $item['quantity'],
+                    'quantity' => (int) $item['quantity'],
                     'reference' => 'purchase:' . $purchase->invoice_number,
                     'notes' => 'Purchase invoice movement',
                     'created_by' => $request->user()->id,
+                    'updated_by' => $request->user()->id,
                 ]);
             }
 

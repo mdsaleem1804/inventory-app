@@ -1,5 +1,5 @@
 <x-app-layout>
-    <x-slot name="header">Low Stock Report</x-slot>
+    <x-slot name="header">Batch Stock Report</x-slot>
 
     <div class="space-y-4">
         <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
@@ -12,10 +12,10 @@
                     <a href="{{ route('reports.expiry') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.expiry') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">Expiry</a>
                     <a href="{{ route('reports.mrp') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.mrp') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">MRP</a>
                 </div>
-                <a href="{{ route('reports.low-stock', array_merge($filters, ['export' => 'csv'])) }}" class="w-full rounded-lg border border-emerald-300 px-4 py-2.5 text-center text-sm font-medium text-emerald-700 hover:bg-emerald-50 sm:w-auto">Export CSV</a>
+                <a href="{{ route('reports.batches', array_merge($filters, ['export' => 'csv'])) }}" class="w-full rounded-lg border border-emerald-300 px-4 py-2.5 text-center text-sm font-medium text-emerald-700 hover:bg-emerald-50 sm:w-auto">Export CSV</a>
             </div>
 
-            <form method="GET" action="{{ route('reports.low-stock') }}" class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <form method="GET" action="{{ route('reports.batches') }}" class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
                 <div>
                     <label class="mb-1 block text-sm font-medium text-slate-700">Category</label>
                     <select name="category_id" class="h-11 w-full rounded-lg border border-slate-300 px-3 text-base sm:text-sm">
@@ -34,9 +34,17 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="flex items-end gap-2 md:col-span-2 xl:col-span-2">
+                <div>
+                    <label class="mb-1 block text-sm font-medium text-slate-700">Expiry On/Before</label>
+                    <input type="date" name="expiry_to" value="{{ $filters['expiry_to'] ?? '' }}" class="h-11 w-full rounded-lg border border-slate-300 px-3 text-base sm:text-sm">
+                </div>
+                <div class="flex items-center gap-2 pt-7">
+                    <input id="only_expired" type="checkbox" name="only_expired" value="1" @checked(!empty($filters['only_expired'])) class="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-500">
+                    <label for="only_expired" class="text-sm text-slate-700">Only expired batches</label>
+                </div>
+                <div class="flex items-end gap-2 xl:justify-end">
                     <button class="h-11 w-full rounded-lg bg-slate-900 px-4 text-sm font-medium text-white sm:w-auto">Apply</button>
-                    <a href="{{ route('reports.low-stock') }}" class="h-11 w-full rounded-lg border border-slate-300 px-4 text-center text-sm leading-[2.75rem] sm:w-auto">Reset</a>
+                    <a href="{{ route('reports.batches') }}" class="h-11 w-full rounded-lg border border-slate-300 px-4 text-center text-sm leading-[2.75rem] sm:w-auto">Reset</a>
                 </div>
             </form>
         </div>
@@ -46,49 +54,81 @@
                 <table class="min-w-full text-left text-sm">
                     <thead class="hidden md:table-header-group">
                         <tr class="border-b border-slate-200 text-slate-500">
+                            <th class="px-3 py-2">Batch #</th>
                             <th class="px-3 py-2">Product</th>
                             <th class="px-3 py-2">SKU</th>
                             <th class="px-3 py-2">Category</th>
-                            <th class="px-3 py-2">Current Stock</th>
-                            <th class="px-3 py-2">Minimum Stock</th>
+                            <th class="px-3 py-2">Qty</th>
+                            <th class="px-3 py-2">Remaining</th>
+                            <th class="px-3 py-2">Cost Price</th>
+                            <th class="px-3 py-2">MRP</th>
+                            <th class="px-3 py-2">Expiry</th>
                             <th class="px-3 py-2">Status</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($products as $product)
+                        @forelse($batches as $batch)
+                            @php
+                                $expiryDate = $batch->expiry_date ? \Illuminate\Support\Carbon::parse($batch->expiry_date) : null;
+                                $daysToExpiry = $expiryDate ? now()->diffInDays($expiryDate, false) : null;
+                            @endphp
                             <tr class="block border-b border-slate-100 py-2 md:table-row md:py-0">
                                 <td class="flex items-center justify-between px-3 py-1.5 font-medium text-slate-900 md:table-cell md:py-3">
+                                    <span class="text-xs uppercase text-slate-400 md:hidden">Batch</span>
+                                    <span>{{ $batch->batch_number }}</span>
+                                </td>
+                                <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
                                     <span class="text-xs uppercase text-slate-400 md:hidden">Product</span>
-                                    <span>{{ $product->name }}</span>
+                                    <span>{{ $batch->product_name }}</span>
                                 </td>
                                 <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
                                     <span class="text-xs uppercase text-slate-400 md:hidden">SKU</span>
-                                    <span>{{ $product->sku }}</span>
+                                    <span>{{ $batch->product_sku }}</span>
                                 </td>
                                 <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
                                     <span class="text-xs uppercase text-slate-400 md:hidden">Category</span>
-                                    <span>{{ $product->category?->name }}</span>
-                                </td>
-                                <td class="flex items-center justify-between px-3 py-1.5 text-red-600 font-semibold md:table-cell md:py-3">
-                                    <span class="text-xs uppercase text-slate-400 md:hidden">Current</span>
-                                    <span>{{ $product->current_stock }}</span>
+                                    <span>{{ $batch->category_name }}</span>
                                 </td>
                                 <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
-                                    <span class="text-xs uppercase text-slate-400 md:hidden">Min</span>
-                                    <span>{{ $product->minimum_stock }}</span>
+                                    <span class="text-xs uppercase text-slate-400 md:hidden">Qty</span>
+                                    <span>{{ $batch->quantity }}</span>
+                                </td>
+                                <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
+                                    <span class="text-xs uppercase text-slate-400 md:hidden">Remaining</span>
+                                    <span>{{ $batch->remaining_quantity }}</span>
+                                </td>
+                                <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
+                                    <span class="text-xs uppercase text-slate-400 md:hidden">Cost</span>
+                                    <span>${{ number_format((float) $batch->cost_price, 2) }}</span>
+                                </td>
+                                <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
+                                    <span class="text-xs uppercase text-slate-400 md:hidden">MRP</span>
+                                    <span>{{ $batch->mrp !== null ? '$' . number_format((float) $batch->mrp, 2) : 'N/A' }}</span>
+                                </td>
+                                <td class="flex items-center justify-between px-3 py-1.5 text-slate-700 md:table-cell md:py-3">
+                                    <span class="text-xs uppercase text-slate-400 md:hidden">Expiry</span>
+                                    <span>{{ $expiryDate?->format('d M Y') ?? 'N/A' }}</span>
                                 </td>
                                 <td class="flex items-center justify-between px-3 py-1.5 md:table-cell md:py-3">
                                     <span class="text-xs uppercase text-slate-400 md:hidden">Status</span>
-                                    <span class="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">Low Stock</span>
+                                    @if($expiryDate === null)
+                                        <span class="rounded-full bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700">No Expiry</span>
+                                    @elseif($expiryDate->isPast())
+                                        <span class="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700">Expired</span>
+                                    @elseif($daysToExpiry <= 30)
+                                        <span class="rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">Expiring Soon</span>
+                                    @else
+                                        <span class="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">Valid</span>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="px-3 py-8 text-center text-slate-500">No low-stock products found.</td></tr>
+                            <tr><td colspan="10" class="px-3 py-8 text-center text-slate-500">No batch stock records found.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
-            <div class="mt-4">{{ $products->links() }}</div>
+            <div class="mt-4">{{ $batches->links() }}</div>
         </div>
     </div>
 </x-app-layout>

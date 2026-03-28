@@ -13,6 +13,7 @@ class StockMovement extends Model
 
     protected $fillable = [
         'product_id',
+        'product_batch_id',
         'type',
         'quantity',
         'reference',
@@ -25,6 +26,11 @@ class StockMovement extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function batch(): BelongsTo
+    {
+        return $this->belongsTo(ProductBatch::class, 'product_batch_id');
     }
 
     public function creator(): BelongsTo

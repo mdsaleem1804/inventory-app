@@ -38,6 +38,7 @@
                             </td>
                             <td class="px-3 py-3">
                                 <div class="flex flex-wrap gap-2">
+                                    <a href="{{ route('products.show', $product) }}" class="rounded-md border border-cyan-300 px-3 py-1.5 text-xs font-medium text-cyan-700 hover:bg-cyan-50">View</a>
                                     <a href="{{ route('products.stock-in.create', ['product' => $product, 'type' => 'IN']) }}" class="rounded-md border border-green-300 px-3 py-1.5 text-xs font-medium text-green-700 hover:bg-green-50">Add Stock</a>
                                     <a href="{{ route('products.stock-out.create', ['product' => $product, 'type' => 'OUT']) }}" class="rounded-md border border-rose-300 px-3 py-1.5 text-xs font-medium text-rose-700 hover:bg-rose-50">Remove Stock</a>
                                     <a href="{{ route('products.stock-movements.index', $product) }}" class="rounded-md border border-indigo-300 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-50">History</a>

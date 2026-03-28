@@ -126,6 +126,105 @@ class ReportsController extends Controller
         ]);
     }
 
+    public function batches(Request $request)
+    {
+        $filters = $request->only(['category_id', 'product_id', 'expiry_to', 'only_expired']);
+
+        if ($request->get('export') === 'csv') {
+            $rows = $this->reportService->batchStockReportCollection($filters);
+
+            return $this->csvDownload('batch_stock_report.csv', ['Batch Number', 'Product', 'SKU', 'Category', 'Quantity', 'Remaining', 'Cost Price', 'MRP', 'Expiry Date', 'Expiry Status'], $rows->map(function ($row) {
+                $expiryStatus = 'No Expiry';
+
+                if (! empty($row->expiry_date)) {
+                    $expiryDate = \Illuminate\Support\Carbon::parse($row->expiry_date);
+                    $daysToExpiry = now()->diffInDays($expiryDate, false);
+                    $expiryStatus = $expiryDate->isPast() ? 'Expired' : ($daysToExpiry <= 30 ? 'Expiring Soon' : 'Valid');
+                }
+
+                return [
+                    $row->batch_number,
+                    $row->product_name,
+                    $row->product_sku,
+                    $row->category_name,
+                    $row->quantity,
+                    $row->remaining_quantity,
+                    $row->cost_price,
+                    $row->mrp,
+                    $row->expiry_date,
+                    $expiryStatus,
+                ];
+            }));
+        }
+
+        $batches = $this->reportService->batchStockReport($filters);
+
+        return view('reports.batches', [
+            'batches' => $batches,
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'productOptions' => Product::orderBy('name')->get(['id', 'name']),
+            'filters' => $filters,
+        ]);
+    }
+
+    public function expiry(Request $request)
+    {
+        $filters = $request->only(['category_id', 'product_id', 'from_date', 'to_date']);
+
+        if ($request->get('export') === 'csv') {
+            $rows = $this->reportService->expiryReportCollection($filters);
+
+            return $this->csvDownload('expiry_report.csv', ['Product', 'SKU', 'Category', 'Batch', 'Remaining', 'Expiry Date'], $rows->map(function ($row) {
+                return [
+                    $row->product_name,
+                    $row->product_sku,
+                    $row->category_name,
+                    $row->batch_number,
+                    $row->remaining_quantity,
+                    $row->expiry_date,
+                ];
+            }));
+        }
+
+        $rows = $this->reportService->expiryReport($filters);
+
+        return view('reports.expiry', [
+            'rows' => $rows,
+            'categories' => Category::orderBy('name')->get(['id', 'name']),
+            'productOptions' => Product::orderBy('name')->get(['id', 'name']),
+            'filters' => $filters,
+        ]);
+    }
+
+    public function mrp(Request $request)
+    {
+        $filters = $request->only(['from_date', 'to_date', 'product_id']);
+
+        if ($request->get('export') === 'csv') {
+            $rows = $this->reportService->mrpVsSellingReportCollection($filters);
+
+            return $this->csvDownload('mrp_vs_selling_report.csv', ['Invoice', 'Date', 'Product', 'Qty', 'Selling Price', 'MRP', 'Diff (Selling - MRP)'], $rows->map(function ($row) {
+                return [
+                    $row->invoice_number,
+                    $row->invoice_date,
+                    $row->product_name,
+                    $row->quantity,
+                    $row->sale_price,
+                    $row->mrp,
+                    $row->price_vs_mrp,
+                ];
+            }));
+        }
+
+        $rows = $this->reportService->mrpVsSellingReport($filters);
+
+        return view('reports.mrp', [
+            'rows' => $rows,
+            'productOptions' => Product::orderBy('name')->get(['id', 'name']),
+            'filters' => $filters,
+        ]);
+    }
+
     private function csvDownload(string $filename, array $headers, iterable $rows): StreamedResponse
     {
         return response()->streamDownload(function () use ($headers, $rows): void {

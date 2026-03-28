@@ -15,6 +15,7 @@
                         <th class="px-3 py-2 font-medium">Product</th>
                         <th class="px-3 py-2 font-medium">Type</th>
                         <th class="px-3 py-2 font-medium">Quantity</th>
+                        <th class="px-3 py-2 font-medium">Batch</th>
                         <th class="px-3 py-2 font-medium">Reference</th>
                     </tr>
                 </thead>
@@ -29,11 +30,12 @@
                                 <span class="rounded-full px-2 py-1 text-xs font-medium {{ $movement->type === 'IN' ? 'bg-green-100 text-green-700' : 'bg-rose-100 text-rose-700' }}">{{ $movement->type }}</span>
                             </td>
                             <td class="px-3 py-3 font-medium text-slate-900">{{ $movement->quantity }}</td>
+                            <td class="px-3 py-3 text-slate-700">{{ $movement->batch?->batch_number ?? '-' }}</td>
                             <td class="px-3 py-3 text-slate-700">{{ $movement->reference ?? '-' }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-3 py-8 text-center text-sm text-slate-500">No stock movements found.</td>
+                            <td colspan="6" class="px-3 py-8 text-center text-sm text-slate-500">No stock movements found.</td>
                         </tr>
                     @endforelse
                 </tbody>

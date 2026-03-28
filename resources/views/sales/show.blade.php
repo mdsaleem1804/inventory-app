@@ -19,7 +19,10 @@
                             <th class="px-3 py-2">Product</th>
                             <th class="px-3 py-2">Quantity</th>
                             <th class="px-3 py-2">Price</th>
+                            <th class="px-3 py-2">Cost</th>
                             <th class="px-3 py-2">Total</th>
+                            <th class="px-3 py-2">Profit</th>
+                            <th class="px-3 py-2">Batches</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -28,7 +31,18 @@
                                 <td class="px-3 py-3 text-slate-900">{{ $item->product?->name }}</td>
                                 <td class="px-3 py-3 text-slate-700">{{ $item->quantity }}</td>
                                 <td class="px-3 py-3 text-slate-700">${{ number_format((float)$item->price, 2) }}</td>
+                                <td class="px-3 py-3 text-slate-700">${{ number_format((float)$item->cost_price, 2) }}</td>
                                 <td class="px-3 py-3 text-slate-900 font-medium">${{ number_format((float)$item->total, 2) }}</td>
+                                <td class="px-3 py-3 font-medium {{ ((float)$item->total - (float)$item->cost_total) >= 0 ? 'text-green-700' : 'text-red-700' }}">
+                                    ${{ number_format((float)$item->total - (float)$item->cost_total, 2) }}
+                                </td>
+                                <td class="px-3 py-3 text-xs text-slate-700">
+                                    @forelse($item->batchAllocations as $allocation)
+                                        <div>{{ $allocation->batch?->batch_number }} ({{ $allocation->quantity }})</div>
+                                    @empty
+                                        <span class="text-slate-400">N/A</span>
+                                    @endforelse
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>

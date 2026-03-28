@@ -29,6 +29,7 @@
                         <tr>
                             <th class="px-3 py-2">Product</th>
                             <th class="px-3 py-2">Available</th>
+                            <th class="px-3 py-2">Batch (Optional)</th>
                             <th class="px-3 py-2">Qty</th>
                             <th class="px-3 py-2">Price</th>
                             <th class="px-3 py-2">Total</th>
@@ -64,6 +65,24 @@
             return products.map(p => `<option value="${p.id}" ${String(selected) === String(p.id) ? 'selected' : ''}>${p.name}</option>`).join('');
         }
 
+        function batchOptions(product, selected = '') {
+            if (!product?.is_batch_enabled) {
+                return '<option value="">Auto FIFO (Non-Batch Product)</option>';
+            }
+
+            const validBatches = (product.batches || []).filter(b => Number(b.remaining_quantity) > 0);
+            if (!validBatches.length) {
+                return '<option value="">No available batch</option>';
+            }
+
+            const options = validBatches.map((b) => {
+                const expiryPart = b.expiry_date ? ` | Exp: ${b.expiry_date}` : '';
+                return `<option value="${b.id}" ${String(selected) === String(b.id) ? 'selected' : ''}>${b.batch_number} (${b.remaining_quantity})${expiryPart}</option>`;
+            }).join('');
+
+            return `<option value="">Auto FIFO</option>${options}`;
+        }
+
         function recalc() {
             let grand = 0;
             tbody.querySelectorAll('tr').forEach((row) => {
@@ -74,8 +93,15 @@
                 grand += line;
 
                 const productId = row.querySelector('.product').value;
-                const stock = products.find(p => String(p.id) === String(productId))?.stock ?? 0;
+                const product = products.find(p => String(p.id) === String(productId));
+                const stock = product?.stock ?? 0;
                 row.querySelector('.stock').textContent = stock;
+
+                const batchSelect = row.querySelector('.batch');
+                const selectedBatch = batchSelect.value || batchSelect.dataset.selected || '';
+                batchSelect.innerHTML = batchOptions(product, selectedBatch);
+                batchSelect.disabled = !(product?.is_batch_enabled);
+                batchSelect.dataset.selected = batchSelect.value || '';
             });
 
             grandTotalEl.textContent = grand.toFixed(2);
@@ -93,6 +119,11 @@
                     </select>
                 </td>
                 <td class="px-3 py-2 text-slate-700"><span class="stock">0</span></td>
+                <td class="px-3 py-2">
+                    <select name="items[${index}][batch_id]" class="batch w-44 rounded-lg border border-slate-300 px-2 py-1" data-selected="${item.batch_id || ''}" disabled>
+                        <option value="">Auto FIFO</option>
+                    </select>
+                </td>
                 <td class="px-3 py-2"><input name="items[${index}][quantity]" type="number" min="1" value="${item.quantity || 1}" class="qty w-24 rounded-lg border border-slate-300 px-2 py-1" required></td>
                 <td class="px-3 py-2"><input name="items[${index}][price]" type="number" min="0" step="0.01" value="${item.price || 0}" class="price w-28 rounded-lg border border-slate-300 px-2 py-1" required></td>
                 <td class="px-3 py-2 text-slate-900">$<span class="line-total">0.00</span></td>
@@ -101,6 +132,13 @@
             tbody.appendChild(tr);
 
             tr.querySelectorAll('input,select').forEach(el => el.addEventListener('input', recalc));
+            tr.querySelector('.product').addEventListener('change', () => {
+                tr.querySelector('.batch').dataset.selected = '';
+                recalc();
+            });
+            tr.querySelector('.batch').addEventListener('change', (e) => {
+                e.target.dataset.selected = e.target.value;
+            });
             tr.querySelector('.remove').addEventListener('click', () => {
                 tr.remove();
                 recalc();

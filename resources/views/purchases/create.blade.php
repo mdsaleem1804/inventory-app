@@ -30,6 +30,8 @@
                             <th class="px-3 py-2">Product</th>
                             <th class="px-3 py-2">Qty</th>
                             <th class="px-3 py-2">Cost Price</th>
+                            <th class="px-3 py-2">MRP</th>
+                            <th class="px-3 py-2">Expiry Date</th>
                             <th class="px-3 py-2">Total</th>
                             <th class="px-3 py-2"></th>
                         </tr>
@@ -88,6 +90,8 @@
                 </td>
                 <td class="px-3 py-2"><input name="items[${index}][quantity]" type="number" min="1" value="${item.quantity || 1}" class="qty w-24 rounded-lg border border-slate-300 px-2 py-1" required></td>
                 <td class="px-3 py-2"><input name="items[${index}][cost_price]" type="number" min="0" step="0.01" value="${item.cost_price || 0}" class="price w-28 rounded-lg border border-slate-300 px-2 py-1" required></td>
+                <td class="px-3 py-2"><input name="items[${index}][mrp]" type="number" min="0" step="0.01" value="${item.mrp || ''}" class="mrp w-28 rounded-lg border border-slate-300 px-2 py-1" disabled></td>
+                <td class="px-3 py-2"><input name="items[${index}][expiry_date]" type="date" value="${item.expiry_date || ''}" class="expiry rounded-lg border border-slate-300 px-2 py-1" disabled></td>
                 <td class="px-3 py-2 text-slate-900">$<span class="line-total">0.00</span></td>
                 <td class="px-3 py-2"><button type="button" class="remove rounded-md border border-red-300 px-2 py-1 text-xs text-red-700">Remove</button></td>
             `;
@@ -98,6 +102,20 @@
                 const product = products.find(p => String(p.id) === String(e.target.value));
                 if (product) {
                     tr.querySelector('.price').value = parseFloat(product.cost_price || 0).toFixed(2);
+
+                    const mrpInput = tr.querySelector('.mrp');
+                    mrpInput.disabled = !(product.is_batch_enabled && product.has_mrp);
+                    mrpInput.required = product.is_batch_enabled && product.has_mrp;
+                    if (mrpInput.disabled) {
+                        mrpInput.value = '';
+                    }
+
+                    const expiryInput = tr.querySelector('.expiry');
+                    expiryInput.disabled = !(product.is_batch_enabled && product.has_expiry);
+                    expiryInput.required = product.is_batch_enabled && product.has_expiry;
+                    if (expiryInput.disabled) {
+                        expiryInput.value = '';
+                    }
                 }
                 recalc();
             });
@@ -107,6 +125,8 @@
             });
 
             recalc();
+
+            tr.querySelector('.product').dispatchEvent(new Event('change'));
         }
 
         addRowBtn.addEventListener('click', () => addRow());

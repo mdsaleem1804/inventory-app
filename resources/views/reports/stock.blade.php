@@ -8,6 +8,9 @@
                     <a href="{{ route('reports.stock') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.stock') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">Stock</a>
                     <a href="{{ route('reports.low-stock') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.low-stock') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">Low Stock</a>
                     <a href="{{ route('reports.profit') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.profit') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">Profit</a>
+                    <a href="{{ route('reports.batches') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.batches') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">Batches</a>
+                    <a href="{{ route('reports.expiry') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.expiry') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">Expiry</a>
+                    <a href="{{ route('reports.mrp') }}" class="rounded-lg px-3 py-2.5 text-center text-sm font-medium {{ request()->routeIs('reports.mrp') ? 'bg-slate-900 text-white' : 'border border-slate-300 text-slate-700' }}">MRP</a>
                 </div>
                 <a href="{{ route('reports.stock', array_merge($filters, ['export' => 'csv'])) }}" class="w-full rounded-lg border border-emerald-300 px-4 py-2.5 text-center text-sm font-medium text-emerald-700 hover:bg-emerald-50 sm:w-auto">Export CSV</a>
             </div>
